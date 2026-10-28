@@ -1,14 +1,22 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 )
 
 type Cow struct {
 	Id         int    `json:"id"`
 	Name       string `json:"name"`
 	IsAbducted bool   `json:"isAbducted"`
+}
+
+type GameState struct {
+	FieldCows map[int]*Cow `json:"fieldCows"`
+	UfoCows   map[int]*Cow `json:"ufoCows"`
 }
 
 var FieldCows map[int]*Cow
@@ -18,6 +26,7 @@ var CowsNames = []string{"Лёля", "Боля", "Боря", "Моля", "Мур
 func main() {
 	initCows(CowsNames)
 	cowchecker()
+	saveData()
 	//http.HandleFunc("/hello", helloHandler)
 	//http.ListenAndServe(":8080", nil)
 }
@@ -54,4 +63,22 @@ func cowchecker() {
 	} else {
 		fmt.Println("У пришельцев нет коров")
 	}
+}
+
+func saveData() {
+	saveStage := GameState{FieldCows: FieldCows, UfoCows: UfoCows}
+	jsonData, err := json.MarshalIndent(saveStage, "", "-->")
+	if err != nil {
+		log.Fatalf("Error GameState marshal: %v", err)
+	}
+	fmt.Println("jsonData compiled successfully")
+	err = os.WriteFile("cows.json", jsonData, 0644)
+	if err != nil {
+		log.Fatalf("Error creating file %v", err)
+	}
+	fmt.Println("Файл cows.json успешно создан")
+}
+
+func remuveT() {
+
 }
