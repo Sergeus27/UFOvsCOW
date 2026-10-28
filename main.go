@@ -19,6 +19,7 @@ type GameState struct {
 	UfoCows   map[int]*Cow `json:"ufoCows"`
 }
 
+var CurrentSave GameState
 var FieldCows map[int]*Cow
 var UfoCows map[int]*Cow
 var CowsNames = []string{"Лёля", "Боля", "Боря", "Моля", "Мурка", "Дурка", "Курка", "Черная", "Белая", "Фиолетовая", "Зеленая", "ERROR"}
@@ -66,8 +67,8 @@ func cowchecker() {
 }
 
 func saveData() {
-	saveStage := GameState{FieldCows: FieldCows, UfoCows: UfoCows}
-	jsonData, err := json.MarshalIndent(saveStage, "", "-->")
+	CurrentSave = GameState{FieldCows: FieldCows, UfoCows: UfoCows}
+	jsonData, err := json.MarshalIndent(CurrentSave, "", "-->")
 	if err != nil {
 		log.Fatalf("Error GameState marshal: %v", err)
 	}
@@ -79,6 +80,44 @@ func saveData() {
 	fmt.Println("Файл cows.json успешно создан")
 }
 
-func remuveT() {
+func loadData() {
+	jsonData, err := os.ReadFile("cows.json")
+	if os.IsNotExist(err) {
+		fmt.Println("сохранения нет, создать? \ny/n:")
+		var answer rune
+		fmt.Scan(&answer)
+		for answer != 'y' || answer != 'Y' || answer != 'n' || answer != 'N' {
+
+		}
+	}
+
+	// log.Fatalf("Error load save stage, %v", err)
+	json.Unmarshal(jsonData, &CurrentSave)
+}
+
+func userResponse() bool {
+	var answer string
+	var validAnswer bool = false
+	var yes = []string{"Y", "y", "yes", "YES", "Yes", "да", "ДА", "Да", "+", "1"}
+	var no = []string{"N", "n", "no", "NO", "No", "нет", "НЕТ", "Нет", "-", "0"}
+
+	fmt.Println("y/n:")
+	fmt.Scan(&answer)
+	count := 0
+	for count; !validAnswer || count < 10; count++ {
+		if answer == yes {
+			validAnswer = true
+		} else if answer == no {
+			validAnswer = true
+			return false
+		} else {
+			fmt.Println("")
+			validAnswer = false
+		}
+	}
+	if count >= 10 {
+		fmt.Println("Вероятно пользователь дурачек, засчитываем как 'нет'")
+		return false
+	}
 
 }
