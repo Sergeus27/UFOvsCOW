@@ -22,10 +22,9 @@ type GameState struct {
 var CurrentSave GameState
 var FieldCows map[int]*Cow
 var UfoCows map[int]*Cow
-var CowsNames = []string{"Лёля", "Боля", "Боря", "Моля", "Мурка", "Дурка", "Курка", "Черная", "Белая", "Фиолетовая", "Зеленая", "ERROR"}
 
 func main() {
-	initCows(CowsNames)
+	initCows()
 	cowchecker()
 	saveData()
 	//http.HandleFunc("/hello", helloHandler)
@@ -36,17 +35,25 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "hello http!")
 }
 
-func initCows(names []string) {
+func initCows() {
+	var cowsNames = []string{"Лёля", "Боля", "Боря", "Моля", "Мурка", "Дурка", "Курка", "Черная", "Белая", "Фиолетовая", "Зеленая", "ERROR"}
+
 	FieldCows = make(map[int]*Cow)
 	UfoCows = make(map[int]*Cow)
 
-	for i, name := range names {
+	for i, name := range cowsNames {
 		FieldCows[i+1] = &Cow{i + 1, name, false}
 	}
 
 }
 
-func cowchecker() {
+func cowchecker() bool {
+
+	if (len(FieldCows) + len(UfoCows)) == 0 {
+		fmt.Println("коров нет нигде")
+		return false
+	}
+
 	if len(FieldCows) > 0 {
 		fmt.Println("Коровы на лугу:")
 		for i := 1; i <= len(FieldCows); i++ {
@@ -54,6 +61,7 @@ func cowchecker() {
 		}
 	} else {
 		fmt.Println("нет коров на лугу-")
+
 	}
 
 	if len(UfoCows) > 0 {
@@ -62,8 +70,12 @@ func cowchecker() {
 			fmt.Println(i, ":   ", UfoCows[i])
 		}
 	} else {
-		fmt.Println("У пришельцев нет коров")
+		fmt.Println("У пришельцев нет коров, и это критическая ошибка")
+		log.Fatal("logic error")
 	}
+
+	return true
+
 }
 
 func saveData() {
@@ -84,10 +96,10 @@ func loadData() {
 	jsonData, err := os.ReadFile("cows.json")
 	if os.IsNotExist(err) {
 		fmt.Println("сохранения нет, создать? \ny/n:")
-		var answer rune
-		fmt.Scan(&answer)
-		for answer != 'y' || answer != 'Y' || answer != 'n' || answer != 'N' {
+		if userResponse() {
+			if cowchecker() == false {
 
+			}
 		}
 	}
 
@@ -97,26 +109,39 @@ func loadData() {
 
 func userResponse() bool {
 	var answer string
-	var validAnswer bool = false
-	var yes = []string{"Y", "y", "yes", "YES", "Yes", "да", "ДА", "Да", "+", "1"}
-	var no = []string{"N", "n", "no", "NO", "No", "нет", "НЕТ", "Нет", "-", "0"}
+	var yesList = []string{"y", "yes", "да", "+", "1"}
+	var noList = []string{"n", "no", "нет", "-", "0"}
+	const maxAttempts = 10
+	answerMap := make(map[string]bool)
+	for _, i := range yesList {
+		answerMap[i] = true
+	}
 
-	fmt.Println("y/n:")
-	fmt.Scan(&answer)
-	count := 0
-	for count; !validAnswer || count < 10; count++ {
-		if answer == yes {
-			validAnswer = true
-		} else if answer == no {
-			validAnswer = true
-			return false
+	for _, i := range noList {
+		answerMap[i] = false
+	}
+
+	var count int = 0
+
+	for count < maxAttempts {
+		count++
+		fmt.Print("y/n:")
+		fmt.Scan(&answer)
+		answer = strings.ToLower(answer)
+
+		if answerValue, ok := answerMap[answer]; ok {
+			fmt.Printf("затрачено попыток:%d\nответ: %s\nзначение: %v\n", count, answer, answerValue)
+			return answerValue
 		} else {
-			fmt.Println("")
-			validAnswer = false
+			fmt.Println("неверный формат ответа, введите либо ДА либо НЕТ:")
 		}
+
 	}
 	if count >= 10 {
 		fmt.Println("Вероятно пользователь дурачек, засчитываем как 'нет'")
+		return false
+	} else {
+		fmt.Println("ты не должен видеть эту строку")
 		return false
 	}
 
