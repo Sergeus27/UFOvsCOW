@@ -39,13 +39,13 @@ func main() {
 	// initCows()
 	// saveData()
 
-	isCowInMap()
+	// isCowInMap()
 
-	if getUserResponse() {
-		loadData()
-	}
+	// if getUserResponse() {
+	// 	loadData()
+	// }
 
-	isCowInMap()
+	// isCowInMap()
 
 	// loadData()
 	// isCowInMap()
@@ -79,9 +79,16 @@ func isCowInMap() bool {
 
 	if len(CurrentSave.FieldCows) > 0 {
 		fmt.Println("Коровы на лугу:")
-		for i := 1; i <= len(CurrentSave.FieldCows); i++ {
-			fmt.Println(i, ":   ", CurrentSave.FieldCows[i])
+
+		for i, a := range CurrentSave.FieldCows {
+			fmt.Printf("%d.) Корова:'%s', Забрали: ", i, a.Name)
+			if a.IsAbducted {
+				fmt.Println("Да")
+			} else {
+				fmt.Println("Нет")
+			}
 		}
+
 	} else {
 		fmt.Println("нет коров на лугу")
 
@@ -89,9 +96,16 @@ func isCowInMap() bool {
 
 	if len(CurrentSave.UfoCows) > 0 {
 		fmt.Println("Коровы у пришельцев:")
-		for i := 1; i <= len(CurrentSave.UfoCows); i++ {
-			fmt.Println(i, ":   ", CurrentSave.UfoCows[i])
+
+		for i, a := range CurrentSave.UfoCows {
+			fmt.Printf("%d.) Корова:'%s', Забрали: ", i, a.Name)
+			if a.IsAbducted {
+				fmt.Println("Да")
+			} else {
+				fmt.Println("Нет")
+			}
 		}
+
 	} else {
 		fmt.Println("нет коров у пришельцев")
 
@@ -177,6 +191,14 @@ func getUserResponse() bool {
 	} else {
 		fmt.Println("ты не должен видеть эту строку")
 		return false
+	}
+
+}
+
+func orderedCowsSlice(cowsMap map[int]*Cow) []*Cow {
+	var cowsSlice []*Cow
+	for i, a = range cowsMap {
+		cowsSlice = append(cowsSlice)
 	}
 
 }
