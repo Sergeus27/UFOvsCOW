@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	// "errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Cow struct {
@@ -20,13 +22,22 @@ type GameState struct {
 }
 
 var CurrentSave GameState
-var FieldCows map[int]*Cow
-var UfoCows map[int]*Cow
 
 func main() {
-	initCows()
-	cowchecker()
-	saveData()
+	// initCows()
+	// saveData()
+
+	isCowInMap()
+
+	if getUserResponse() {
+		loadData()
+	}
+
+	isCowInMap()
+
+	// loadData()
+	// isCowInMap()
+
 	//http.HandleFunc("/hello", helloHandler)
 	//http.ListenAndServe(":8080", nil)
 }
@@ -38,40 +49,40 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 func initCows() {
 	var cowsNames = []string{"Лёля", "Боля", "Боря", "Моля", "Мурка", "Дурка", "Курка", "Черная", "Белая", "Фиолетовая", "Зеленая", "ERROR"}
 
-	FieldCows = make(map[int]*Cow)
-	UfoCows = make(map[int]*Cow)
+	CurrentSave.FieldCows = make(map[int]*Cow)
+	CurrentSave.UfoCows = make(map[int]*Cow)
 
 	for i, name := range cowsNames {
-		FieldCows[i+1] = &Cow{i + 1, name, false}
+		CurrentSave.FieldCows[i+1] = &Cow{i + 1, name, false}
 	}
 
 }
 
-func cowchecker() bool {
+func isCowInMap() bool {
 
-	if (len(FieldCows) + len(UfoCows)) == 0 {
+	if (len(CurrentSave.FieldCows) + len(CurrentSave.UfoCows)) == 0 {
 		fmt.Println("коров нет нигде")
 		return false
 	}
 
-	if len(FieldCows) > 0 {
+	if len(CurrentSave.FieldCows) > 0 {
 		fmt.Println("Коровы на лугу:")
-		for i := 1; i <= len(FieldCows); i++ {
-			fmt.Println(i, ":   ", FieldCows[i])
+		for i := 1; i <= len(CurrentSave.FieldCows); i++ {
+			fmt.Println(i, ":   ", CurrentSave.FieldCows[i])
 		}
 	} else {
-		fmt.Println("нет коров на лугу-")
+		fmt.Println("нет коров на лугу")
 
 	}
 
-	if len(UfoCows) > 0 {
+	if len(CurrentSave.UfoCows) > 0 {
 		fmt.Println("Коровы у пришельцев:")
-		for i := 1; i <= len(UfoCows); i++ {
-			fmt.Println(i, ":   ", UfoCows[i])
+		for i := 1; i <= len(CurrentSave.UfoCows); i++ {
+			fmt.Println(i, ":   ", CurrentSave.UfoCows[i])
 		}
 	} else {
-		fmt.Println("У пришельцев нет коров, и это критическая ошибка")
-		log.Fatal("logic error")
+		fmt.Println("нет коров у пришельцев")
+
 	}
 
 	return true
@@ -79,8 +90,8 @@ func cowchecker() bool {
 }
 
 func saveData() {
-	CurrentSave = GameState{FieldCows: FieldCows, UfoCows: UfoCows}
-	jsonData, err := json.MarshalIndent(CurrentSave, "", "-->")
+
+	jsonData, err := json.MarshalIndent(CurrentSave, "", "\t")
 	if err != nil {
 		log.Fatalf("Error GameState marshal: %v", err)
 	}
@@ -90,24 +101,35 @@ func saveData() {
 		log.Fatalf("Error creating file %v", err)
 	}
 	fmt.Println("Файл cows.json успешно создан")
+	// errors.New("сука2")
 }
 
 func loadData() {
 	jsonData, err := os.ReadFile("cows.json")
+
 	if os.IsNotExist(err) {
 		fmt.Println("сохранения нет, создать? \ny/n:")
-		if userResponse() {
-			if cowchecker() == false {
-
-			}
+		if getUserResponse() {
+			initCows()
+		} else {
+			fmt.Println("ну и пошел на хуй тогда")
+			return
 		}
 	}
-
+	if err != nil {
+		log.Fatalf("файл существует. Ошибка в чтении: %v", err)
+	}
 	// log.Fatalf("Error load save stage, %v", err)
-	json.Unmarshal(jsonData, &CurrentSave)
+	err = json.Unmarshal(jsonData, &CurrentSave)
+	if err != nil {
+		log.Fatalf("Ошибка распаковки json: %v", err)
+	} else {
+		fmt.Println("файл успешно загружен")
+	}
 }
 
-func userResponse() bool {
+func getUserResponse() bool {
+	// errors.New("сука")
 	var answer string
 	var yesList = []string{"y", "yes", "да", "+", "1"}
 	var noList = []string{"n", "no", "нет", "-", "0"}
