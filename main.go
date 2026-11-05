@@ -24,6 +24,18 @@ type GameState struct {
 var CurrentSave GameState
 
 func main() {
+
+	initCows()
+	isCowInMap()
+	saveData()
+	fmt.Println("загрузиться хош?")
+	if getUserResponse() {
+		loadData()
+		fmt.Println("коровы загружены:")
+		isCowInMap()
+	} else {
+		fmt.Println("ну и пошел тогда ну хуй")
+	}
 	// initCows()
 	// saveData()
 
