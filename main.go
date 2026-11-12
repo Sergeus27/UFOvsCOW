@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -36,6 +37,8 @@ func main() {
 	} else {
 		fmt.Println("ну и пошел тогда ну хуй")
 	}
+
+	printOrderedCows(CurrentSave.FieldCows)
 	// initCows()
 	// saveData()
 
@@ -195,10 +198,23 @@ func getUserResponse() bool {
 
 }
 
-func orderedCowsSlice(cowsMap map[int]*Cow) []*Cow {
+func printOrderedCows(cowsMap map[int]*Cow) {
 	var cowsSlice []*Cow
-	for i, a = range cowsMap {
-		cowsSlice = append(cowsSlice)
+
+	for _, cow := range cowsMap {
+		cowsSlice = append(cowsSlice, cow)
 	}
 
+	sort.Slice(cowsSlice, func(i, j int) bool {
+		return cowsSlice[i].Id < cowsSlice[j].Id
+	})
+
+	for i, a := range cowsSlice {
+		fmt.Print(i, ".) ", a.Id, " --- ", a.Name)
+		if a.IsAbducted {
+			fmt.Println(", спиздили")
+		} else {
+			fmt.Println(", не спиздили")
+		}
+	}
 }
