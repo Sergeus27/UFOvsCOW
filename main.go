@@ -5,6 +5,7 @@ import (
 	// "errors"
 	"fmt"
 	"log"
+	// "math/rand"
 	"net/http"
 	"os"
 	"sort"
@@ -28,33 +29,9 @@ func main() {
 
 	initCows()
 	isCowInMap()
-	saveData()
-	fmt.Println("загрузиться хош?")
-	if getUserResponse() {
-		loadData()
-		fmt.Println("коровы загружены:")
-		isCowInMap()
-	} else {
-		fmt.Println("ну и пошел тогда ну хуй")
-	}
 
 	printOrderedCows(CurrentSave.FieldCows)
-	// initCows()
-	// saveData()
 
-	// isCowInMap()
-
-	// if getUserResponse() {
-	// 	loadData()
-	// }
-
-	// isCowInMap()
-
-	// loadData()
-	// isCowInMap()
-
-	//http.HandleFunc("/hello", helloHandler)
-	//http.ListenAndServe(":8080", nil)
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +45,12 @@ func initCows() {
 	CurrentSave.UfoCows = make(map[int]*Cow)
 
 	for i, name := range cowsNames {
-		CurrentSave.FieldCows[i+1] = &Cow{i + 1, name, false}
+
+		id := i + 1
+		// rnd := rand.Intn(12)
+		// fmt.Println(rnd)
+		// CurrentSave.FieldCows[rnd+1] = &Cow{rnd + 1, name, false}
+		CurrentSave.FieldCows[id] = &Cow{id, name, false}
 	}
 
 }
@@ -198,6 +180,10 @@ func getUserResponse() bool {
 
 }
 
+func mysort(cowsMap map[int]*Cow, sortFunc func(i, j int) bool) {
+
+}
+
 func printOrderedCows(cowsMap map[int]*Cow) {
 	var cowsSlice []*Cow
 
@@ -209,6 +195,7 @@ func printOrderedCows(cowsMap map[int]*Cow) {
 		return cowsSlice[i].Id < cowsSlice[j].Id
 	})
 
+	fmt.Println("дальше вывод отсортированных по проядку коров:")
 	for i, a := range cowsSlice {
 		fmt.Print(i, ".) ", a.Id, " --- ", a.Name)
 		if a.IsAbducted {
