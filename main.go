@@ -180,8 +180,12 @@ func getUserResponse() bool {
 
 }
 
-func mysort(cowsMap map[int]*Cow, sortFunc func(i, j int) bool) {
+func mysort(cowsSlice []*Cow, lessfunc func(i, j int) bool) {
+	length:=len(cowsSlice)
 
+	for a:=0;a+1<len(cowsSlice);a++{
+		for b:=0;
+	}
 }
 
 func printOrderedCows(cowsMap map[int]*Cow) {
@@ -193,6 +197,10 @@ func printOrderedCows(cowsMap map[int]*Cow) {
 
 	sort.Slice(cowsSlice, func(i, j int) bool {
 		return cowsSlice[i].Id < cowsSlice[j].Id
+	})
+
+	mysort(cowsSlice, func(i, j int) {
+		return cowsSlice[i].Id<cowsSlice[j].Id
 	})
 
 	fmt.Println("дальше вывод отсортированных по проядку коров:")
